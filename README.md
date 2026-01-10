@@ -7,10 +7,10 @@ This project is built as a performance-focused Next.js app with reusable UI prim
 ---
 
 ## Live Demo
-- **Vercel Deployment:** _<add-your-vercel-link-here>_
+- **Vercel Deployment:**
 
 ## Demo Video
-- **YouTube (1–2 mins):** _<add-your-video-link-here>_
+- **YouTube (1–2 mins):** 
 
 ---
 
@@ -39,6 +39,7 @@ This project is built as a performance-focused Next.js app with reusable UI prim
 ---
 
 ## Project Structure (Feature-Based + Atomic UI)
+```
 Axiom-pro/
 ├─ public/
 │  ├─ screenshots/
@@ -137,7 +138,7 @@ Axiom-pro/
 ├─ tsconfig.json
 ├─ package.json
 └─ README.md
-
+```
 
 ### Architecture Notes
 - **UI components** follow an *Atomic Design approach* (`atoms → molecules → organisms`).
@@ -207,7 +208,7 @@ Target: **Lighthouse score ≥ 90** on both mobile & desktop.
 
 ## Screenshots
 
-> Add your screenshots inside `/public/screenshots/` and reference them below.
+
 
 ### Pulse Page – Desktop
 ![Pulse Desktop](./public/screenshots/pulse-desktop.png)
@@ -215,11 +216,7 @@ Target: **Lighthouse score ≥ 90** on both mobile & desktop.
 ### Pulse Page – Mobile (320px)
 ![Pulse Mobile](./public/screenshots/pulse-mobile.png)
 
-### Tooltip / Popover / Modal Examples
-![Interactions](./public/screenshots/interactions.png)
 
-### Loading Skeleton (Shimmer)
-![Skeleton Loading](./public/screenshots/skeleton.png)
 
 ---
 
