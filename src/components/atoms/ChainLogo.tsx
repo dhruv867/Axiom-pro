@@ -1,45 +1,49 @@
 'use client';
 
+import * as React from 'react';
 import { useSelector } from 'react-redux';
-import { type RootState } from '@/store';
+import type { RootState } from '@/store';
 import { SolanaLogo } from './SolanaLogo';
 
-interface ChainLogoProps {
-    className?: string;
-    width?: number;
-    height?: number;
-}
+type ChainLogoProps = {
+  className?: string;
+  width?: number;
+  height?: number;
+};
 
 export function ChainLogo({ className, width = 14, height = 14 }: ChainLogoProps) {
-    const activeChain = useSelector((state: RootState) => state.ui.activeChain);
+  const activeChain = useSelector((state: RootState) => state.ui.activeChain);
 
-    // Wrapper ensures consistent sizing
-    const wrapperStyle = {
-        width,
-        height,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-    };
+  const wrapperStyle = React.useMemo<React.CSSProperties>(
+    () => ({
+      width,
+      height,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+    }),
+    [width, height]
+  );
 
-    if (activeChain === 'bnb') {
-        return (
-            <div style={wrapperStyle} className={className}>
-                <img
-                    src="https://axiom.trade/images/bnb-fill.svg"
-                    alt="BNB"
-                    width={width}
-                    height={height}
-                    style={{ width, height, objectFit: 'contain' }}
-                />
-            </div>
-        );
-    }
+  const isBnb = activeChain === 'bnb';
 
-    return (
-        <div style={wrapperStyle} className={className}>
-            <SolanaLogo width={width} height={height} />
-        </div>
-    );
+  const logo = isBnb ? (
+    <img
+      src="https://axiom.trade/images/bnb-fill.svg"
+      alt="BNB Chain"
+      width={width}
+      height={height}
+      loading="lazy"
+      style={{ width, height, objectFit: 'contain' }}
+    />
+  ) : (
+    <SolanaLogo width={width} height={height} />
+  );
+
+  return (
+    <div className={className} style={wrapperStyle} aria-label="Active chain logo">
+      {logo}
+    </div>
+  );
 }

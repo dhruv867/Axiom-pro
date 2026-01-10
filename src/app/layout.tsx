@@ -1,30 +1,37 @@
 import type { Metadata, Viewport } from 'next';
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
+import clsx from 'clsx';
 import { Geist, Geist_Mono } from 'next/font/google';
+
 import { Providers } from '@/components/Providers';
 import { HeaderSkeleton } from '@/components/skeletons';
+
 import './globals.css';
 import { Analytics } from '@vercel/analytics/next';
 
-const Header = dynamic(
-  () => import('@/components/organisms/Header').then(mod => ({ default: mod.Header })),
-  { loading: () => <HeaderSkeleton />, ssr: true }
-);
-
 const geistSans = Geist({
-  variable: '--font-geist-sans',
   subsets: ['latin'],
+  variable: '--font-geist-sans',
   display: 'swap',
-  preload: true,
 });
 
 const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
   subsets: ['latin'],
+  variable: '--font-geist-mono',
   display: 'swap',
-  preload: true,
 });
+
+const Header = dynamic(
+  async () => {
+    const mod = await import('@/components/organisms/Header');
+    return mod.Header;
+  },
+  {
+    ssr: true,
+    loading: () => <HeaderSkeleton />,
+  }
+);
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -33,39 +40,58 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'Axiom Trade - Pulse',
+  title: {
+    default: 'Axiom Trade - Pulse',
+    template: '%s | Axiom Trade - Pulse',
+  },
   description: 'Real-time token discovery and trading platform on Solana',
   keywords: ['Solana', 'DEX', 'Token', 'Trading', 'DeFi', 'Crypto'],
+  robots: { index: true, follow: true },
   openGraph: {
     title: 'Axiom Trade - Pulse',
     description: 'Real-time token discovery and trading platform on Solana',
     type: 'website',
+    url: 'https://axiom.trade',
   },
-  robots: { index: true, follow: true },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Axiom Trade - Pulse',
+    description: 'Real-time token discovery and trading platform on Solana',
+  },
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
   other: {
     'mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-capable': 'yes',
   },
 };
 
+const bodyClass = clsx(
+  geistSans.variable,
+  geistMono.variable,
+  'dark font-sans antialiased min-h-screen bg-[#06070b] overflow-hidden'
+);
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
-      <head>
-        <link rel="preconnect" href="https://axiom.trade" />
-        <link rel="dns-prefetch" href="https://axiom.trade" />
-      </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased h-screen max-h-screen overflow-hidden flex flex-col bg-[#06070b]`}>
+      <body className={bodyClass}>
         <Providers>
-          <div className="shrink-0" style={{ zoom: 1.20 }}>
-            <Suspense fallback={<HeaderSkeleton />}>
-              <Header />
-            </Suspense>
+          <div className="flex min-h-screen flex-col">
+            <div className="shrink-0">
+              <Suspense fallback={<HeaderSkeleton />}>
+                <Header />
+              </Suspense>
+            </div>
+
+            <main className="flex-1 min-h-0 overflow-hidden">
+              {children}
+            </main>
           </div>
-          <main className="flex-1 flex flex-col overflow-hidden min-h-0" style={{ zoom: 1.33 }}>
-            {children}
-          </main>
         </Providers>
+
         <Analytics />
       </body>
     </html>
