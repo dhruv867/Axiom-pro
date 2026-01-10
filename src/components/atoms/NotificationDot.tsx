@@ -1,14 +1,29 @@
 'use client';
 
-import React from 'react';
+import * as React from 'react';
+import { cn } from '@/lib/utils';
 
-interface NotificationDotProps {
-    children: React.ReactNode;
-}
+export type NotificationDotProps = {
+  children: React.ReactNode;
+  className?: string;
+  dotClassName?: string;
+};
 
-export const NotificationDot = ({ children }: NotificationDotProps) => (
-    <div className="relative inline-flex">
-        {children}
-        <span className="absolute -top-0.5 right-0 w-[4px] h-[4px] rounded-full bg-[#ec397a]" />
-    </div>
-);
+export const NotificationDot = React.memo(function NotificationDot({
+  children,
+  className,
+  dotClassName,
+}: NotificationDotProps) {
+  return (
+    <span className={cn('relative inline-flex', className)}>
+      {children}
+      <span
+        aria-hidden="true"
+        className={cn(
+          'absolute -top-0.5 right-0 h-[4px] w-[4px] rounded-full bg-[#ec397a]',
+          dotClassName
+        )}
+      />
+    </span>
+  );
+});
