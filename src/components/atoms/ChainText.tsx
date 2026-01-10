@@ -1,13 +1,23 @@
 'use client';
 
+import * as React from 'react';
 import { useSelector } from 'react-redux';
-import { type RootState } from '@/store';
+import type { RootState } from '@/store';
 
-interface ChainTextProps {
-    className?: string;
-}
+type ChainTextProps = {
+  className?: string;
+};
 
-export function ChainText({ className }: ChainTextProps) {
-    const activeChain = useSelector((state: RootState) => state.ui.activeChain);
-    return <span className={className}>{activeChain === 'bnb' ? 'BNB' : 'SOL'}</span>;
-}
+const ChainTextComponent = ({ className }: ChainTextProps) => {
+  const activeChain = useSelector((state: RootState) => state.ui.activeChain);
+
+  const chainLabel = activeChain === 'bnb' ? 'BNB' : 'SOL';
+
+  return (
+    <span className={className} aria-label="Active chain">
+      {chainLabel}
+    </span>
+  );
+};
+
+export const ChainText = React.memo(ChainTextComponent);
