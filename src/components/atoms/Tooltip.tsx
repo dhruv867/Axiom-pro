@@ -1,133 +1,195 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect, type ReactNode } from 'react';
+import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const tooltipVariants = cva(
-    'fixed z-[9999] px-2 py-1.5 text-xs font-medium text-white bg-[#1a1b23] border border-[#2a2a38] rounded-md shadow-lg whitespace-nowrap pointer-events-none transition-opacity duration-150',
-    {
-        variants: {
-            position: {
-                top: '-translate-x-1/2 -translate-y-[calc(100%+4px)]',
-                right: 'translate-x-2 -translate-y-1/2',
-                'bottom-left': 'translate-y-2',
-            },
-        },
-        defaultVariants: {
-            position: 'top',
-        },
-    }
+  'fixed z-[9999] px-2 py-1.5 text-xs font-medium text-white bg-[#1a1b23] border border-[#2a2a38] rounded-md shadow-lg whitespace-nowrap pointer-events-none transition-opacity duration-150',
+  {
+    variants: {
+      position: {
+        top: '-translate-x-1/2 -translate-y-[calc(100%+4px)]',
+        right: 'translate-x-2 -translate-y-1/2',
+        'bottom-left': 'translate-y-2',
+      },
+    },
+    defaultVariants: {
+      position: 'top',
+    },
+  }
 );
 
+/**
+ * CVA VariantProps sometimes includes null/undefined.
+ * We explicitly exclude those so internal logic stays type-safe.
+ */
+type TooltipPosition = Exclude<
+  VariantProps<typeof tooltipVariants>['position'],
+  null | undefined
+>;
+
 export interface TooltipProps extends VariantProps<typeof tooltipVariants> {
-    content: ReactNode;
-    children: ReactNode;
-    className?: string;
-    containerClassName?: string;
-    delay?: number;
+  content: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+  containerClassName?: string;
+  delay?: number;
+  disabled?: boolean;
+}
+
+function clamp(v: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, v));
 }
 
 export function Tooltip({
-    content,
-    children,
-    position = 'top',
-    className,
-    containerClassName,
-    delay = 200,
+  content,
+  children,
+  position = 'top',
+  className,
+  containerClassName,
+  delay = 200,
+  disabled = false,
 }: TooltipProps) {
-    const [isVisible, setIsVisible] = useState(false);
-    const [coords, setCoords] = useState({ top: 0, left: 0 });
-    const triggerRef = useRef<HTMLDivElement>(null);
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const [mounted, setMounted] = useState(false);
+  const triggerRef = React.useRef<HTMLDivElement>(null);
+  const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+  const [mounted, setMounted] = React.useState(false);
+  const [isVisible, setIsVisible] = React.useState(false);
+  const [coords, setCoords] = React.useState({ top: 0, left: 0 });
 
-    const updatePosition = useCallback(() => {
-        if (!triggerRef.current) return;
-        const rect = triggerRef.current.getBoundingClientRect();
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
-        let top = 0;
-        let left = 0;
+  const safePosition: TooltipPosition = (position ?? 'top') as TooltipPosition;
 
-        switch (position) {
-            case 'top':
-                top = rect.top;
-                left = rect.left + rect.width / 2;
-                break;
-            case 'right':
-                top = rect.top + rect.height / 2;
-                left = rect.right;
-                break;
-            case 'bottom-left':
-                top = rect.bottom;
-                left = rect.left + rect.width;
-                break;
-            default:
-                top = rect.top;
-                left = rect.left + rect.width / 2;
-        }
+  const calcPosition = React.useCallback((pos: TooltipPosition) => {
+    const el = triggerRef.current;
+    if (!el) return null;
 
-        setCoords({ top, left });
-    }, [position]);
+    const rect = el.getBoundingClientRect();
 
-    const showTooltip = useCallback(() => {
-        updatePosition();
-        timeoutRef.current = setTimeout(() => {
-            updatePosition(); // Re-calc in case of shifts
-            setIsVisible(true);
-        }, delay);
-    }, [delay, updatePosition]);
+    let top = 0;
+    let left = 0;
 
-    const hideTooltip = useCallback(() => {
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-            timeoutRef.current = null;
-        }
-        setIsVisible(false);
-    }, []);
+    switch (pos) {
+      case 'top':
+        top = rect.top;
+        left = rect.left + rect.width / 2;
+        break;
 
-    // Handle scroll/resize updates while visible
-    useEffect(() => {
-        if (isVisible) {
-            window.addEventListener('scroll', updatePosition, true);
-            window.addEventListener('resize', updatePosition);
-            return () => {
-                window.removeEventListener('scroll', updatePosition, true);
-                window.removeEventListener('resize', updatePosition);
-            };
-        }
-    }, [isVisible, updatePosition]);
+      case 'right':
+        top = rect.top + rect.height / 2;
+        left = rect.right;
+        break;
 
-    return (
-        <div
-            ref={triggerRef}
-            className={cn("relative inline-flex", containerClassName)}
-            onMouseEnter={showTooltip}
-            onMouseLeave={hideTooltip}
-            onFocus={showTooltip}
-            onBlur={hideTooltip}
-        >
-            {children}
-            {mounted && isVisible && createPortal(
-                <div
-                    role="tooltip"
-                    style={{ top: coords.top, left: coords.left }}
-                    className={cn(
-                        tooltipVariants({ position }),
-                        isVisible ? 'opacity-100' : 'opacity-0',
-                        className
-                    )}
-                >
-                    {content}
-                </div>,
-                document.body
-            )}
-        </div>
-    );
+      case 'bottom-left':
+        top = rect.bottom;
+        left = rect.left + rect.width;
+        break;
+
+      default:
+        top = rect.top;
+        left = rect.left + rect.width / 2;
+    }
+
+    // keep tooltip inside viewport
+    const padding = 8;
+    left = clamp(left, padding, window.innerWidth - padding);
+    top = clamp(top, padding, window.innerHeight - padding);
+
+    return { top, left };
+  }, []);
+
+  const updatePosition = React.useCallback(() => {
+    const next = calcPosition(safePosition);
+    if (next) setCoords(next);
+  }, [calcPosition, safePosition]);
+
+  const clearTimer = React.useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
+
+  const showTooltip = React.useCallback(() => {
+    if (disabled) return;
+
+    clearTimer();
+    updatePosition();
+
+    timeoutRef.current = setTimeout(() => {
+      updatePosition(); // re-calc in case layout shifted
+      setIsVisible(true);
+    }, delay);
+  }, [clearTimer, delay, disabled, updatePosition]);
+
+  const hideTooltip = React.useCallback(() => {
+    clearTimer();
+    setIsVisible(false);
+  }, [clearTimer]);
+
+  // reposition while visible
+  React.useEffect(() => {
+    if (!isVisible) return;
+
+    const handleScroll = () => updatePosition();
+    const handleResize = () => updatePosition();
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') hideTooltip();
+    };
+
+    window.addEventListener('scroll', handleScroll, true);
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('keydown', handleKey);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll, true);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('keydown', handleKey);
+    };
+  }, [hideTooltip, isVisible, updatePosition]);
+
+  // cleanup on unmount
+  React.useEffect(() => {
+    return () => clearTimer();
+  }, [clearTimer]);
+
+  return (
+    <div
+      ref={triggerRef}
+      className={cn('relative inline-flex', containerClassName)}
+      // mouse
+      onMouseEnter={showTooltip}
+      onMouseLeave={hideTooltip}
+      // keyboard (focus inside children)
+      onFocusCapture={showTooltip}
+      onBlurCapture={hideTooltip}
+      // touch support
+      onTouchStart={(e) => {
+        e.stopPropagation();
+        showTooltip();
+      }}
+      onTouchEnd={hideTooltip}
+      onTouchCancel={hideTooltip}
+    >
+      {children}
+
+      {mounted && isVisible
+        ? createPortal(
+            <div
+              role="tooltip"
+              style={{ top: coords.top, left: coords.left }}
+              className={cn(tooltipVariants({ position: safePosition }), 'opacity-100', className)}
+            >
+              {content}
+            </div>,
+            document.body
+          )
+        : null}
+    </div>
+  );
 }
-

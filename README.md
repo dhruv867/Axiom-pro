@@ -5,12 +5,20 @@ A pixel-perfect recreation of the **Axiom Pulse** token trading table UI with in
 This project is built as a performance-focused Next.js app with reusable UI primitives, feature-based architecture, and strong loading/error handling.
 
 ---
-
 ## Live Demo
 - **Vercel Deployment:**
 
 ## Demo Video
-- **YouTube (1–2 mins):** 
+- **YouTube :**
+---
+
+## Screenshots
+
+### Pulse Page – Desktop
+![Pulse Desktop](./public/screenshots/pulse-desktop.png)
+
+### Pulse Page – Mobile (320px)
+![Pulse Mobile](./public/screenshots/pulse-mobile.png)
 
 ---
 
@@ -45,8 +53,7 @@ Axiom-pro/
 │  ├─ screenshots/
 │  │  ├─ pulse-desktop.png
 │  │  ├─ pulse-mobile.png
-│  │  ├─ interactions.png
-│  │  └─ skeleton.png
+│  │  
 │  └─ favicon.ico
 │
 ├─ src/
@@ -206,19 +213,6 @@ Target: **Lighthouse score ≥ 90** on both mobile & desktop.
 
 ---
 
-## Screenshots
-
-
-
-### Pulse Page – Desktop
-![Pulse Desktop](./public/screenshots/pulse-desktop.png)
-
-### Pulse Page – Mobile (320px)
-![Pulse Mobile](./public/screenshots/pulse-mobile.png)
-
-
-
----
 
 ## How to Run Locally
 
