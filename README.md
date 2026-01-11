@@ -6,7 +6,7 @@ This project is built as a performance-focused Next.js app with reusable UI prim
 
 ---
 ## Live Demo
-- **Vercel Deployment:**
+- **Vercel Deployment:** https://axiom-pro-cyan.vercel.app/pulse?chain=sol
 
 ## Demo Video
 - **YouTube :**
