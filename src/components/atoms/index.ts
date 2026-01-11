@@ -10,7 +10,8 @@ export { NotificationDot } from './NotificationDot';
 
 // Media
 export { OptimizedImage } from './OptimizedImage';
-
+export * from './Popover';
+export * from './Modal';
 // Chain Display
 export { ChainLogo } from './ChainLogo';
 export { ChainText } from './ChainText';
