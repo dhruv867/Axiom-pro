@@ -1,6 +1,5 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'axiom.trade', pathname: '/images/**' },
@@ -11,11 +10,14 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128],
     minimumCacheTTL: 60 * 60 * 24 * 30,
   },
+
   compress: true,
-  allowedDevOrigins: ["10.201.195.215", 'local-origin.dev', '*.local-origin.dev',"172.28.128.1"],
-  experimental: { 
+
+  // ✅ Next.js 14: keep experimental minimal
+  experimental: {
     optimizeCss: true,
   },
+
   async headers() {
     return [
       {
@@ -28,7 +30,9 @@ const nextConfig: NextConfig = {
       },
       {
         source: '/fonts/(.*)',
-        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
       },
     ];
   },

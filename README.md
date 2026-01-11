@@ -12,7 +12,7 @@ This project is built as a performance-focused Next.js app with reusable UI prim
 - **YouTube :**
 ---
 
-## Screenshots
+
 
 ### Pulse Page – Desktop
 ![Pulse Desktop](./public/screenshots/pulse-desktop.png)
@@ -53,7 +53,9 @@ Axiom-pro/
 │  ├─ screenshots/
 │  │  ├─ pulse-desktop.png
 │  │  ├─ pulse-mobile.png
-│  │  
+│  │  ├─ interactions.png
+│  │  ├─ skeleton.png
+│  │  └─ lighthouse.png
 │  └─ favicon.ico
 │
 ├─ src/
@@ -70,81 +72,93 @@ Axiom-pro/
 │  │  ├─ atoms/
 │  │  │  ├─ AxiomLogo.tsx
 │  │  │  ├─ Badge.tsx
-│  │  │  ├─ IconButton.tsx
+│  │  │  ├─ Button.tsx
+│  │  │  ├─ ChainLogo.tsx
+│  │  │  ├─ ChainText.tsx
+│  │  │  ├─ MetricBlock.tsx
 │  │  │  ├─ NavButton.tsx
-│  │  │  └─ Tooltip.tsx
+│  │  │  ├─ NotificationDot.tsx
+│  │  │  ├─ OptimizedImage.tsx
+│  │  │  ├─ Skeleton.tsx
+│  │  │  ├─ SolanaLogo.tsx
+│  │  │  ├─ Tooltip.tsx
+│  │  │  ├─ Popover.tsx
+│  │  │  ├─ Modal.tsx
+│  │  │  └─ index.ts
 │  │  │
 │  │  ├─ molecules/
-│  │  │  ├─ SearchInput.tsx
-│  │  │  ├─ SortButton.tsx
-│  │  │  └─ TokenRowActionsPopover.tsx
+│  │  │  ├─ AccountSettingsDropdown.tsx
+│  │  │  ├─ AvatarDropdown.tsx
+│  │  │  ├─ ChainDropdown.tsx
+│  │  │  ├─ ChainSelector.tsx
+│  │  │  ├─ FilterModal.tsx
+│  │  │  ├─ MetricPill.tsx
+│  │  │  ├─ MultiChainBadge.tsx
+│  │  │  ├─ PresetPill.tsx
+│  │  │  ├─ TokenAvatarCard.tsx
+│  │  │  ├─ WalletDropdown.tsx
+│  │  │  ├─ WalletSolPill.tsx
+│  │  │  └─ index.ts
 │  │  │
 │  │  ├─ organisms/
-│  │  │  ├─ HeaderBar.tsx
-│  │  │  ├─ Sidebar.tsx
 │  │  │  ├─ BottomStatusBar.tsx
-│  │  │  └─ TokenTradingTable.tsx
+│  │  │  ├─ Header.tsx
+│  │  │  ├─ MobileMenu.tsx
+│  │  │  ├─ MobileNavBar.tsx
+│  │  │  ├─ PulseToolbar.tsx
+│  │  │  ├─ TokenCard.tsx
+│  │  │  ├─ TokenColumn.tsx
+│  │  │  └─ index.ts
 │  │  │
-│  │  └─ providers/
-│  │     ├─ AppProviders.tsx
-│  │     ├─ QueryProvider.tsx
-│  │     └─ ReduxProvider.tsx
-│  │
-│  ├─ features/
-│  │  └─ pulse/
-│  │     ├─ api/
-│  │     │  ├─ pulse.types.ts
-│  │     │  ├─ pulse.mock.ts
-│  │     │  └─ pulse.queries.ts
-│  │     │
-│  │     ├─ state/
-│  │     │  ├─ pulse.slice.ts
-│  │     │  └─ pulse.selectors.ts
-│  │     │
-│  │     ├─ ws/
-│  │     │  └─ mockPriceSocket.ts
-│  │     │
-│  │     ├─ utils/
-│  │     │  ├─ sort.ts
-│  │     │  ├─ format.ts
-│  │     │  └─ constants.ts
-│  │     │
-│  │     ├─ ui/
-│  │     │  ├─ PulseScreen.tsx
-│  │     │  ├─ PulseTabs.tsx
-│  │     │  ├─ TokenTable.tsx
-│  │     │  ├─ TokenRow.tsx
-│  │     │  ├─ TokenDetailsModal.tsx
-│  │     │  ├─ TokenTableSkeleton.tsx
-│  │     │  └─ ErrorState.tsx
-│  │     │
-│  │     └─ index.ts
-│  │
-│  ├─ lib/
-│  │  ├─ utils.ts
-│  │  ├─ env.ts
-│  │  └─ queryClient.ts
-│  │
-│  ├─ store/
-│  │  ├─ index.ts
-│  │  ├─ rootReducer.ts
-│  │  └─ hooks.ts
+│  │  ├─ skeletons/
+│  │  │  ├─ HeaderSkeleton.tsx
+│  │  │  ├─ PulseToolbarSkeleton.tsx
+│  │  │  ├─ TokenColumnSkeleton.tsx
+│  │  │  └─ index.ts
+│  │  │
+│  │  ├─ Providers.tsx
+│  │  ├─ PulseContent.tsx
+│  │  └─ PulseContentLazy.tsx
 │  │
 │  ├─ hooks/
-│  │  ├─ useDebounce.ts
-│  │  └─ useMounted.ts
+│  │  ├─ index.ts
+│  │  ├─ useChain.ts
+│  │  ├─ useIsMobile.ts
+│  │  ├─ usePerformance.ts
+│  │  ├─ useRedux.ts
+│  │  ├─ useTokens.ts
+│  │  └─ useWebSocket.ts
 │  │
-│  └─ types/
-│     └─ global.d.ts
+│  ├─ lib/
+│  │  └─ utils.ts
+│  │
+│  ├─ store/
+│  │  ├─ filterSlice.ts
+│  │  ├─ tokenSlice.ts
+│  │  ├─ uiSlice.ts
+│  │  ├─ store.ts
+│  │  └─ index.ts
+│  │
+│  ├─ types/
+│  │  ├─ index.ts
+│  │  ├─ token.types.ts
+│  │  └─ ui.types.ts
+│  │
+│  └─ utils/
+│     ├─ constants.ts
+│     ├─ formatters.ts
+│     ├─ mockData.ts
+│     ├─ tokenCardHelpers.ts
+│     └─ index.ts
 │
 ├─ .env.example
-├─ .eslintrc.json
-├─ .prettierrc
-├─ next.config.js
+├─ .gitignore
+├─ next.config.ts
 ├─ tailwind.config.ts
 ├─ tsconfig.json
 ├─ package.json
 └─ README.md
+
 ```
 
 ### Architecture Notes

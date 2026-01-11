@@ -3,13 +3,23 @@
 import React, { memo, useState, useMemo } from 'react';
 import { type Token } from '@/types';
 import { formatCurrency, formatCompactNumber, formatTimeAgo } from '@/utils';
-import { getRingColor, getMarketCapColor, generateUserIconColor } from '@/utils/tokenCardHelpers';
-import { useTokenCardState, useChain } from '@/hooks';
-import { RiCheckLine, RiUserLine, RiFlashlightFill, RiFileCopyFill } from '@remixicon/react';
+import {
+  getRingColor,
+  getMarketCapColor,
+  generateUserIconColor,
+} from '@/utils/tokenCardHelpers';
+import { useTokenCardState, useChain, useMounted } from '@/hooks';
+import {
+  RiCheckLine,
+  RiUserLine,
+  RiFlashlightFill,
+  RiFileCopyFill,
+} from '@remixicon/react';
 import { ChainLogo, ChainText } from '@/components/atoms';
 import { MetricBlock } from '@/components/atoms/MetricBlock';
 import { Tooltip } from '@/components/atoms/Tooltip';
 import { TokenAvatarCard, MetricPill } from '@/components/molecules';
+import { cn } from '@/lib/utils';
 
 interface TokenCardProps {
   token: Token;
@@ -20,13 +30,13 @@ interface TokenCardProps {
 
 function TokenCardComponent({
   token,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   flashDirection,
   showDecimals = true,
   onQuickBuy,
 }: TokenCardProps) {
+  const mounted = useMounted();
+
   const [copied, setCopied] = useState(false);
-  const [userIconColor] = useState(generateUserIconColor);
   const { activeChain } = useChain();
 
   const {
@@ -47,6 +57,12 @@ function TokenCardComponent({
     initialVolume: token.volume24h,
   });
 
+  // ✅ Prevent hydration mismatch:
+  // userIconColor should NOT be random during SSR.
+  const userIconColor = useMemo(() => {
+    return mounted ? generateUserIconColor() : '#777a8c';
+  }, [mounted]);
+
   const ringColor = getRingColor(token.id);
   const mcColor = useMemo(() => getMarketCapColor(marketCap), [marketCap]);
   const redBarPct = 100 - barWidths.green;
@@ -59,8 +75,6 @@ function TokenCardComponent({
   };
 
   const bondingProgress = token.bondingCurveProgress || 0;
-  // Use a neutral light grey for hover background
-  const hoverClass = "hover:bg-[#252630]";
 
   // Determine tooltip props based on status and bonding
   let tooltipContent: React.ReactNode;
@@ -68,14 +82,31 @@ function TokenCardComponent({
   if (token.status === 'migrated') {
     tooltipContent = <span className="text-[#fafaa5]">Pump VI</span>;
   } else {
-    // Bonding color logic: Green if < 50, Red if >= 50
     const isHighBonding = bondingProgress > 49;
-    const tooltipTextColor = isHighBonding ? "text-[#ef4444]" : "text-[#16a34a]";
-    tooltipContent = <span className={tooltipTextColor}>Bonding: {bondingProgress.toFixed(2)}%</span>;
+    const tooltipTextColor = isHighBonding ? 'text-[#ef4444]' : 'text-[#16a34a]';
+    tooltipContent = (
+      <span className={tooltipTextColor}>
+        Bonding: {bondingProgress.toFixed(2)}%
+      </span>
+    );
   }
 
+  // ✅ Card flash animation (assignment: smooth color transitions)
+  const flashClass = useMemo(() => {
+    if (flashDirection === 'up') return 'bg-green-500/10 border-green-500/30';
+    if (flashDirection === 'down') return 'bg-red-500/10 border-red-500/30';
+    return '';
+  }, [flashDirection]);
+
   const cardContent = (
-    <div className={`relative w-full flex items-center pl-2 lg:pl-3 pr-1 py-2 border-b border-[#1a1b23] cursor-pointer bg-transparent gap-2 min-h-[64px] transition-colors duration-200 mr-2 ${hoverClass}`}>
+    <div
+      className={cn(
+        'relative w-full flex items-center pl-2 lg:pl-3 pr-1 py-2 border-b border-[#1a1b23] cursor-pointer bg-transparent gap-2 min-h-[64px] mr-2',
+        'transition-colors duration-300',
+        'hover:bg-[#252630]',
+        flashClass
+      )}
+    >
       <TokenAvatarCard
         symbol={tokenIdentity.symbol}
         name={tokenIdentity.name}
@@ -94,6 +125,7 @@ function TokenCardComponent({
               <span className="text-[10px] text-[#777a8c] shrink-0 font-semibold">
                 {tokenIdentity.symbol}
               </span>
+
               <button
                 onClick={handleCopy}
                 className="bg-none border-none cursor-pointer p-0 flex ml-[2px] shrink-0"
@@ -107,16 +139,24 @@ function TokenCardComponent({
             </div>
 
             <div className="flex items-center gap-1 text-[11px] text-[#777a8c] mt-[1px] overflow-hidden">
+              {/* ✅ Hydration safe: show placeholder on SSR */}
               <span className="text-[#16a34a] shrink-0">
-                {formatTimeAgo(token.createdAt)}
+                {mounted ? formatTimeAgo(token.createdAt) : '--'}
               </span>
+
               <RiUserLine
                 className="w-[11px] h-[11px] shrink-0"
                 style={{ color: userIconColor }}
               />
+
               <div className="flex items-center gap-1 overflow-hidden">
                 {topMetrics.map((m, i) => (
-                  <MetricBlock key={i} icon={m.icon} text={m.count ?? 0} textClass="text-[#fcfcfc]" />
+                  <MetricBlock
+                    key={i}
+                    icon={m.icon}
+                    text={m.count ?? 0}
+                    textClass="text-[#fcfcfc]"
+                  />
                 ))}
               </div>
             </div>
@@ -125,10 +165,14 @@ function TokenCardComponent({
           <div className="flex flex-col items-end gap-[1px] shrink-0">
             <div className="flex items-center gap-[3px]">
               <span className="text-[9px] text-[#777a8c]">MC</span>
-              <span className="text-[12px] font-semibold" style={{ color: mcColor }}>
+              <span
+                className={cn('text-[12px] font-semibold transition-colors duration-300')}
+                style={{ color: mcColor }}
+              >
                 {formatCurrency(marketCap, showDecimals)}
               </span>
             </div>
+
             <div className="flex items-center gap-[3px] -mt-1">
               <span className="text-[9px] text-[#777a8c] -mb-1">V</span>
               <span className="text-[12px] font-semibold text-[#fcfcfc]">
@@ -177,7 +221,9 @@ function TokenCardComponent({
             className="px-1 py-[1px] rounded-xl text-[10px] font-semibold bg-[#526fff] text-black border-none cursor-pointer whitespace-nowrap flex items-center gap-[2px] min-w-[54px] justify-center shrink-0"
           >
             <RiFlashlightFill className="w-3 h-3 text-black" />
-            <span className="text-black">0 <ChainText /></span>
+            <span className="text-black">
+              0 <ChainText />
+            </span>
           </button>
         </div>
       </div>

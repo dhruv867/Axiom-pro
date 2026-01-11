@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import clsx from 'clsx';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 
 import { Providers } from '@/components/Providers';
 import { HeaderSkeleton } from '@/components/skeletons';
@@ -10,15 +10,15 @@ import { HeaderSkeleton } from '@/components/skeletons';
 import './globals.css';
 import { Analytics } from '@vercel/analytics/next';
 
-const geistSans = Geist({
+const interSans = Inter({
   subsets: ['latin'],
-  variable: '--font-geist-sans',
+  variable: '--font-sans',
   display: 'swap',
 });
 
-const geistMono = Geist_Mono({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
-  variable: '--font-geist-mono',
+  variable: '--font-mono',
   display: 'swap',
 });
 
@@ -69,8 +69,8 @@ export const metadata: Metadata = {
 };
 
 const bodyClass = clsx(
-  geistSans.variable,
-  geistMono.variable,
+  interSans.variable,
+  jetbrainsMono.variable,
   'dark font-sans antialiased min-h-screen bg-[#06070b] overflow-hidden'
 );
 
@@ -86,9 +86,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </Suspense>
             </div>
 
-            <main className="flex-1 min-h-0 overflow-hidden">
-              {children}
-            </main>
+            <main className="flex-1 min-h-0 overflow-hidden">{children}</main>
           </div>
         </Providers>
 
